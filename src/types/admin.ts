@@ -1,4 +1,6 @@
 // src/types/admin.ts
+import { OrderStatus, PaymentStatus } from '@prisma/client';
+
 export interface AdminUser {
   id: string;
   email: string;

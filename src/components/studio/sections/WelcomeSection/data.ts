@@ -1,4 +1,6 @@
 // src/components/studio/sections/WelcomeSection/data.ts
+import type { ExamplesDataType } from './types';
+
 export const examplesData: ExamplesDataType = {
   good: [
     {
@@ -64,4 +66,4 @@ export const examplesData: ExamplesDataType = {
       image: "/images/examples/bad-3.jpg"
     }
   ]
-}
+};

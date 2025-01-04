@@ -38,10 +38,11 @@ export async function uploadToBlob({
   }
 }
 
+// src/lib/blob.ts
 export async function generateBlobPath(
   userId: string,
   folder: BlobFolder,
   fileName: string
-): string {
+): Promise<string> {
   return `${userId}/${folder}/${fileName}`;
 }

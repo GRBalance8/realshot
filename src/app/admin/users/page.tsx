@@ -19,15 +19,16 @@ export default async function AdminUsersPage() {
   }
 
   const users = await prisma.user.findMany({
-    orderBy: { createdAt: 'desc' },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      role: true,
-      createdAt: true
-    }
-  });
+  orderBy: { createdAt: 'desc' },
+  select: {
+    id: true,
+    email: true,
+    name: true,
+    role: true,
+    createdAt: true,
+    updatedAt: true
+  }
+});
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

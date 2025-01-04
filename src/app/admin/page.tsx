@@ -40,7 +40,8 @@ export default async function AdminPage() {
         email: true,
         name: true,
         role: true,
-        createdAt: true
+        createdAt: true,
+        updatedAt: true
       }
     }),
     prisma.$transaction([

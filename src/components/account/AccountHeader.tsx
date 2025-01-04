@@ -2,7 +2,7 @@
 import { FC } from 'react';
 
 interface AccountHeaderProps {
-  userName?: string;
+  userName: string | null | undefined;
 }
 
 export const AccountHeader: FC<AccountHeaderProps> = ({ userName }) => {

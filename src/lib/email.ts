@@ -1,7 +1,7 @@
 // src/lib/email.ts
 import nodemailer from 'nodemailer';
 
-const transporter = nodemailer.createTransport({
+export const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_SERVER_HOST,
   port: Number(process.env.EMAIL_SERVER_PORT),
   auth: {
@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
 
 export async function sendResetEmail(email: string, token: string) {
   const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${token}`;
-
+  
   const mailOptions = {
     from: process.env.EMAIL_FROM,
     to: email,
