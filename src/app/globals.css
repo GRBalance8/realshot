@@ -1,0 +1,187 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.bg-pattern {
+  background-color: #FFF5EB;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(26, 43, 59, 0.015) 0px,
+    rgba(26, 43, 59, 0.015) 1px,
+    transparent 1px,
+    transparent 50%
+  );
+  background-size: 10px 10px;
+}
+
+.loading-spinner {
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.8s linear infinite;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@layer base {
+  body {
+    @apply text-gray-900 font-sans;
+  }
+  input[type="email"],
+  input[type="password"] {
+    @apply appearance-none;
+  }
+  input[type="checkbox"] {
+    @apply h-4 w-4 rounded border-gray-300 text-blue-900 focus:ring-blue-900/20 transition-colors;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium transition-all duration-300;
+  }
+  
+  .btn-primary {
+    @apply bg-blue-900 text-white hover:bg-accent hover:-translate-y-1 hover:shadow-lg active:translate-y-0;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-blue-900 border border-gray-200 hover:border-blue-900 hover:bg-blue-900/5;
+  }
+
+  .form-input {
+    @apply w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 transition-all;
+  }
+  
+  .form-label {
+    @apply block text-sm font-medium text-gray-700 mb-2;
+  }
+  
+  .divider {
+    @apply relative my-8;
+  }
+  
+  .divider::before {
+    @apply content-[''] absolute top-1/2 left-0 right-0 h-px bg-gray-200;
+  }
+  
+  .divider-text {
+    @apply relative z-10 bg-white px-4 text-sm text-gray-500 inline-block;
+  }
+
+  /* Card styles */
+  .card {
+    @apply bg-white rounded-2xl shadow-card transition-smooth hover:shadow-card-hover;
+  }
+
+  .card-header {
+    @apply p-6 border-b border-gray-100;
+  }
+
+  .card-body {
+    @apply p-6;
+  }
+
+  /* Studio specific components */
+  .studio-heading {
+    @apply font-serif text-4xl text-blue-900 mb-6 tracking-wide;
+  }
+
+  .studio-subheading {
+    @apply text-gray-600 text-xl leading-relaxed max-w-3xl mx-auto;
+  }
+
+  .studio-section {
+    @apply max-w-6xl mx-auto px-6 py-12;
+  }
+
+  /* Progress steps */
+  .progress-step {
+    @apply flex flex-col items-center mx-6;
+  }
+
+  .progress-step-icon {
+    @apply w-16 h-16 rounded-full flex items-center justify-center mb-3 transition-all duration-300 shadow-md;
+  }
+
+  .progress-step-active {
+    @apply bg-blue-900 text-white scale-110 shadow-lg;
+  }
+
+  .progress-step-completed {
+    @apply bg-accent text-white;
+  }
+
+  .progress-step-pending {
+    @apply bg-white text-blue-900;
+  }
+
+  /* Photo upload area */
+  .upload-area {
+    @apply border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all;
+  }
+
+  .upload-area-dragging {
+    @apply border-accent bg-cream;
+  }
+
+  .upload-area-idle {
+    @apply border-blue-900 hover:border-accent hover:bg-cream/50;
+  }
+
+  /* Gallery grid */
+  .photo-grid {
+    @apply grid grid-cols-2 md:grid-cols-4 gap-6;
+  }
+
+  /* Photo items - without @apply group */
+  .photo-item {
+    position: relative;
+  }
+
+  .photo-item-image {
+    @apply w-full aspect-square object-cover rounded-xl shadow-md transition-transform;
+  }
+
+  .photo-item:hover .photo-item-image {
+    @apply shadow-lg;
+  }
+
+  .photo-item-remove {
+    @apply absolute top-3 right-3 opacity-0 transition-all duration-200;
+  }
+
+  .photo-item:hover .photo-item-remove {
+    @apply opacity-100;
+  }
+}
+
+@layer utilities {
+  .shadow-card {
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  }
+  
+  .shadow-card-hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+  
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Custom gradients */
+  .bg-gradient-main {
+    background: linear-gradient(to bottom, #FFF5EB, #FFFFFF);
+  }
+
+  .bg-gradient-line {
+    background: linear-gradient(to right, transparent, rgb(203 213 225), transparent);
+  }
+}
