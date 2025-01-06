@@ -1,17 +1,16 @@
+// src/app/admin/orders/page.tsx
 import { OrderManagement } from '@/components/admin/OrderManagement';
 import { prisma } from '@/lib/prisma';
 import { Decimal } from '@prisma/client/runtime/library';
 import { Order as PrismaOrder } from '@prisma/client';
 
-// Interface for the raw order from Prisma
 interface RawOrder extends PrismaOrder {
   user: {
     email: string;
   };
 }
 
-// Interface for the processed order
-interface Order {
+interface SerializedOrder {
   id: string;
   userId: string;
   status: string;
@@ -24,8 +23,8 @@ interface Order {
   paymentStatus: string;
   stripeSessionId: string | null;
   paymentIntentId: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   user: {
     email: string;
   };
@@ -45,18 +44,19 @@ export default async function OrdersPage(): Promise<JSX.Element> {
     },
   });
 
-  // Convert Decimal to number for client component
-  const orders: Order[] = rawOrders.map((order: RawOrder): Order => ({
+  const serializedOrders: SerializedOrder[] = rawOrders.map((order: RawOrder): SerializedOrder => ({
     ...order,
     totalAmount: order.totalAmount instanceof Decimal ? 
       order.totalAmount.toNumber() : 
       Number(order.totalAmount),
+    createdAt: order.createdAt.toISOString(),
+    updatedAt: order.updatedAt.toISOString()
   }));
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-2xl font-serif mb-8">Order Management</h1>
-      <OrderManagement initialOrders={orders} />
+      <OrderManagement initialOrders={serializedOrders} />
     </div>
   );
 }

@@ -13,6 +13,13 @@ interface Order {
   trainingInitiated: boolean;
   imagesGenerated: boolean;
   orderCompleted: boolean;
+  responsiblePerson: string | null;
+  totalAmount: number;
+  paymentStatus: string;
+  stripeSessionId: string | null;
+  paymentIntentId: string | null;
+  createdAt: string;
+  updatedAt: string;
   user: {
     email: string;
   };
