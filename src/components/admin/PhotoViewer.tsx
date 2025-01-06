@@ -1,7 +1,6 @@
-// src/components/admin/PhotoViewer.tsx
 'use client';
-
 import { FC, useState } from 'react';
+import Image from 'next/image';
 import { del } from '@vercel/blob';
 
 interface Photo {
@@ -45,10 +44,13 @@ export const PhotoViewer: FC<PhotoViewerProps> = ({ photos, orderId, onDelete })
             key={photo.id} 
             className="relative group aspect-square rounded-2xl overflow-hidden shadow-lg"
           >
-            <img
+            <Image
               src={photo.url}
               alt="Generated photo"
-              className="w-full h-full object-cover transition-transform group-hover:scale-105"
+              fill
+              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className="object-cover transition-transform group-hover:scale-105"
+              priority={false}
             />
             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
               <button
@@ -73,18 +75,21 @@ export const PhotoViewer: FC<PhotoViewerProps> = ({ photos, orderId, onDelete })
           </div>
         ))}
       </div>
-
       {/* Photo Modal */}
       {selectedPhoto && (
         <div 
           className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
           onClick={() => setSelectedPhoto(null)}
         >
-          <div className="max-w-4xl max-h-[90vh] w-full p-4">
-            <img
+          <div className="relative max-w-4xl max-h-[90vh] w-full h-full p-4">
+            <Image
               src={selectedPhoto.url}
               alt="Generated photo full view"
-              className="w-full h-full object-contain"
+              fill
+              className="object-contain"
+              sizes="(max-width: 1536px) 100vw"
+              priority
+              quality={100}
             />
           </div>
           <button 

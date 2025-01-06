@@ -6,7 +6,7 @@ import { examplesData } from './data'
 
 export function WelcomeSection() {
   const { goToNextStep } = useStudio()
-
+  
   return (
     <div className="studio-section">
       <div className="text-center mb-16">
@@ -14,8 +14,8 @@ export function WelcomeSection() {
           Experience Dating Apps Like <span className="text-accent">The Top 5%</span>
         </h1>
         <p className="studio-subheading">
-          The perfect photos are probably already in your camera roll. Here's what works 
-          especially well, but don't worry if your photos aren't exactly like the examples.
+          The perfect photos are probably already in your camera roll. Here&apos;s what works 
+          especially well, but don&apos;t worry if your photos aren&apos;t exactly like the examples.
         </p>
       </div>
 
@@ -35,14 +35,13 @@ export function WelcomeSection() {
         <Button onClick={goToNextStep}>
           Continue to Photo Upload
         </Button>
-
         <p className="mt-6 text-gray-500">
           Questions?{' '}
           <a 
             href="mailto:support@realshot.ai" 
             className="text-blue-900 hover:text-accent transition-colors"
           >
-            We're here to help!
+            We&apos;re here to help!
           </a>
         </p>
       </div>

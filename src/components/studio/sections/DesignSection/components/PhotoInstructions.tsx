@@ -1,5 +1,8 @@
 // src/components/studio/sections/DesignSection/components/PhotoInstructions.tsx
+'use client';
+
 import { useState } from 'react';
+import Image from 'next/image';
 import { Card } from '@/components/studio/components/Card';
 import { Button } from '@/components/studio/components/Button';
 import { TextArea } from '@/components/studio/components/TextArea';
@@ -43,8 +46,29 @@ export function PhotoInstructions({
   setUploadingState
 }: PhotoInstructionsProps) {
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [imageLoadStates, setImageLoadStates] = useState<Record<string, { loading: boolean; error: boolean }>>({});
+
+  const handleImageLoadingComplete = (id: string) => {
+    setImageLoadStates(prev => ({
+      ...prev,
+      [id]: { ...prev[id], loading: false }
+    }));
+  };
+
+  const handleImageError = (id: string) => {
+    setImageLoadStates(prev => ({
+      ...prev,
+      [id]: { loading: false, error: true }
+    }));
+  };
 
   const handleFileUpload = async (index: number, file: File) => {
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      setUploadError('File size should be less than 10MB');
+      return;
+    }
+
     setUploadError(null);
     setUploadingState(index, true);
 
@@ -68,6 +92,12 @@ export function PhotoInstructions({
         referenceImage: data.url,
         fileId: data.id
       });
+
+      // Initialize loading state for new image
+      setImageLoadStates(prev => ({
+        ...prev,
+        [data.id]: { loading: true, error: false }
+      }));
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Failed to upload image');
       onChange(index, { referenceImage: null, fileId: null });
@@ -106,11 +136,16 @@ export function PhotoInstructions({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {successExamples.map((example, index) => (
             <Card key={index} className="overflow-hidden">
-              <img
-                src={`/api/placeholder/400/320`}
-                alt={example.title}
-                className="w-full h-64 object-cover"
-              />
+              <div className="relative w-full h-64">
+                <Image
+                  src="/api/placeholder/400/320"
+                  alt={example.title}
+                  width={400}
+                  height={320}
+                  className="object-cover w-full h-full"
+                  unoptimized
+                />
+              </div>
               <div className="p-8">
                 <h3 className="font-serif text-2xl text-blue-900 mb-3">{example.title}</h3>
                 <p className="text-gray-600 mb-6 leading-relaxed">{example.description}</p>
@@ -124,7 +159,7 @@ export function PhotoInstructions({
       <div className="text-center mb-12">
         <h2 className="studio-heading">Design Your Photos</h2>
         <p className="studio-subheading">
-          Describe what you'd like for each photo. Feel free to be as detailed as you want.
+          Describe what you&apos;d like for each photo. Feel free to be as detailed as you want.
           Add reference photos if you have specific ideas in mind.
         </p>
       </div>
@@ -138,7 +173,7 @@ export function PhotoInstructions({
               label="Description"
               value={instruction.description}
               onChange={e => onChange(index, { description: e.target.value })}
-              placeholder="Describe what you'd like for this photo..."
+              placeholder="Describe what you&apos;d like for this photo..."
               rows={4}
               required
             />
@@ -150,34 +185,54 @@ export function PhotoInstructions({
                   <LoadingSpinner />
                 </div>
               ) : instruction.referenceImage ? (
-                <div className="relative">
-                  <img
-                    src={instruction.referenceImage}
-                    alt="Reference"
-                    className="w-full h-48 object-cover rounded-xl"
-                  />
-                  <button
-                    onClick={() => handleDeleteFile(index)}
-                    className="absolute top-3 right-3 bg-white/95 w-7 h-7 rounded-full flex items-center 
-                      justify-center shadow-sm hover:scale-110 hover:shadow-md transition-all"
-                  >
-                    <svg 
-                      width="14" 
-                      height="14" 
-                      viewBox="0 0 24 24" 
-                      fill="none" 
-                      stroke="#1A2B3B" 
-                      strokeWidth="2" 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round"
+                <div className="relative h-48 group">
+                  <div className="relative w-full h-full">
+                    {imageLoadStates[instruction.fileId || '']?.loading && (
+                      <div className="absolute inset-0 bg-gray-100 animate-pulse rounded-xl" />
+                    )}
+                    <Image
+                      src={instruction.referenceImage}
+                      alt="Reference photo"
+                      width={400}
+                      height={192}
+                      className="rounded-xl object-cover w-full h-full transition-opacity duration-300"
+                      style={{ 
+                        opacity: imageLoadStates[instruction.fileId || '']?.loading ? 0 : 1 
+                      }}
+                      onLoadingComplete={() => handleImageLoadingComplete(instruction.fileId || '')}
+                      onError={() => handleImageError(instruction.fileId || '')}
+                      unoptimized
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity 
+                    flex items-center justify-center gap-4">
+                    <button
+                      onClick={() => setSelectedImage(instruction.referenceImage)}
+                      className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                      aria-label="Preview image"
                     >
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                  </button>
+                      <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => handleDeleteFile(index)}
+                      className="p-2 rounded-full bg-red-500/80 hover:bg-red-500 transition-colors"
+                      aria-label="Delete image"
+                    >
+                      <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               ) : (
-                <div>
+                <div className="flex flex-col items-center justify-center h-48 bg-gray-50 rounded-xl border-2 
+                  border-dashed border-gray-300">
                   <input
                     type="file"
                     id={`file-input-${index}`}
@@ -190,12 +245,14 @@ export function PhotoInstructions({
                   />
                   <label
                     htmlFor={`file-input-${index}`}
-                    className="inline-flex items-center justify-center bg-blue-900 text-white 
-                      py-2 px-4 rounded-full text-sm font-medium tracking-wide transition-all 
-                      duration-300 hover:bg-accent hover:-translate-y-1 hover:shadow-lg 
-                      active:translate-y-0 cursor-pointer"
+                    className="flex flex-col items-center cursor-pointer"
                   >
-                    Choose File
+                    <svg className="w-8 h-8 text-gray-400 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-sm font-medium text-blue-900">Choose a file</span>
+                    <span className="text-xs text-gray-500 mt-1">or drag and drop</span>
                   </label>
                 </div>
               )}
@@ -213,6 +270,37 @@ export function PhotoInstructions({
           Continue to Payment
         </Button>
       </div>
+
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div className="relative max-w-4xl max-h-[90vh] w-full p-4">
+            <Image
+              src={selectedImage}
+              alt="Reference photo preview"
+              width={800}
+              height={600}
+              className="object-contain w-full h-full"
+              unoptimized
+              priority
+            />
+            <button 
+              className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedImage(null);
+              }}
+              aria-label="Close preview"
+            >
+              <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

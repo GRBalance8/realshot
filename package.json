@@ -2,6 +2,10 @@
   "name": "realshot",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "18.18.0",
+    "npm": "9.6.7"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -16,6 +20,7 @@
     "@vercel/blob": "^0.27.0",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.0.0",
+    "lru-cache": "^10.4.3",
     "next": "^14.2.22",
     "next-auth": "^4.24.11",
     "nodemailer": "^6.9.16",
@@ -28,7 +33,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
-    "@types/node": "^20.17.11",
+    "@types/node": "^18.18.0",
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^18",
     "@types/react-dom": "^18",

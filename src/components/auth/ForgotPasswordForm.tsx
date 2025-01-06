@@ -15,16 +15,13 @@ export const ForgotPasswordForm = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
     try {
       const response = await fetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
-
       if (!response.ok) throw new Error('Failed to process request');
-
       setSuccess(true);
     } catch (err) {
       setError('Failed to send reset email. Please try again.');
@@ -38,7 +35,7 @@ export const ForgotPasswordForm = () => {
       <div className="w-full max-w-md bg-white rounded-[32px] shadow-lg p-10">
         <h2 className="text-2xl font-semibold text-blue-900 mb-4">Check Your Email</h2>
         <p className="text-gray-600 mb-6">
-          If an account exists for {email}, you will receive a password reset link shortly.
+          If an account exists for {email}, you&apos;ll receive a password reset link shortly.
         </p>
         <button
           onClick={() => router.push('/auth')}
@@ -54,9 +51,8 @@ export const ForgotPasswordForm = () => {
     <div className="w-full max-w-md bg-white rounded-[32px] shadow-lg p-10">
       <h2 className="text-2xl font-semibold text-blue-900 mb-4">Reset Password</h2>
       <p className="text-gray-600 mb-6">
-        Enter your email address and we'll send you a link to reset your password.
+        Enter your email address and we&apos;ll send you a link to reset your password.
       </p>
-
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -70,13 +66,11 @@ export const ForgotPasswordForm = () => {
             required
           />
         </div>
-
         {error && (
           <div className="bg-red-50 text-red-500 p-4 rounded-2xl text-sm">
             {error}
           </div>
         )}
-
         <button
           type="submit"
           disabled={loading}
@@ -84,7 +78,6 @@ export const ForgotPasswordForm = () => {
         >
           {loading ? 'Sending...' : 'Send Reset Link'}
         </button>
-
         <button
           type="button"
           onClick={() => router.push('/auth')}

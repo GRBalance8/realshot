@@ -24,7 +24,7 @@ export default async function SuccessPage({
           </div>
           <h1 className="studio-heading mb-4">Payment Successful!</h1>
           <p className="text-gray-600 mb-8">
-            Thank you for your order. We've started processing your photos and will notify you once they're ready.
+            Thank you for your order. We&apos;ve started processing your photos and will notify you once they&apos;re ready.
           </p>
           <p className="text-sm text-gray-500">
             Order reference: {searchParams.session_id}

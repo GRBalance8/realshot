@@ -25,9 +25,9 @@ export async function POST(req: Request) {
       );
     }
 
-    if (instructions.length === 0 || instructions.length > 6) {
+    if (instructions.length !== 6) {
       return NextResponse.json(
-        { error: 'Invalid number of instructions' },
+        { error: 'Must provide exactly 6 instructions' },
         { status: 400 }
       );
     }
@@ -58,19 +58,22 @@ export async function POST(req: Request) {
     });
 
     // Create new instructions
-    const photoRequests = await Promise.all(
+    const photoRequests = await prisma.$transaction(
       instructions.map((instruction) =>
         prisma.photoRequest.create({
           data: {
             orderId: order.id,
             description: instruction.description,
-            referenceImage: instruction.referenceImage,
+            referenceImage: instruction.referenceImage
           }
         })
       )
     );
 
-    return NextResponse.json(photoRequests);
+    return NextResponse.json({
+      success: true,
+      data: photoRequests
+    });
   } catch (error) {
     console.error('Photo instructions error:', error);
     return NextResponse.json(

@@ -12,12 +12,10 @@ export function PaymentSection() {
       <div className="text-center mb-12">
         <h1 className="studio-heading">Complete Your Order</h1>
         <p className="studio-subheading">
-          You're just one step away from transforming your dating profile
+          You&apos;re just one step away from transforming your dating profile
         </p>
       </div>
-
       {state.error && <ErrorMessage message={state.error} />}
-
       <Card className="mb-12">
         <div className="border-b border-gray-100 p-8">
           <h2 className="font-serif text-3xl text-blue-900 mb-3">Order Summary</h2>
@@ -26,7 +24,6 @@ export function PaymentSection() {
             <p className="text-2xl font-medium text-blue-900">${state.totalAmount}</p>
           </div>
         </div>
-
         <div className="p-8">
           <Button 
             onClick={initiatePayment}
@@ -37,7 +34,6 @@ export function PaymentSection() {
           </Button>
         </div>
       </Card>
-
       <div className="flex justify-center items-center space-x-12">
         <div className="flex items-center text-gray-600 space-x-2">
           <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -46,7 +42,6 @@ export function PaymentSection() {
           </svg>
           <span>Secure Payment</span>
         </div>
-
         <div className="flex items-center text-gray-600 space-x-2">
           <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
@@ -54,7 +49,6 @@ export function PaymentSection() {
           </svg>
           <span>SSL Encrypted</span>
         </div>
-
         <div className="flex items-center text-gray-600 space-x-2">
           <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
@@ -63,7 +57,6 @@ export function PaymentSection() {
           <span>Satisfaction Guaranteed</span>
         </div>
       </div>
-
       <div className="text-center mt-8">
         <p className="text-sm text-gray-500">
           Questions?{' '}
@@ -71,7 +64,7 @@ export function PaymentSection() {
             href="mailto:support@realshot.ai" 
             className="text-blue-900 hover:text-accent transition-colors"
           >
-            We're here to help!
+            We&apos;re here to help!
           </a>
         </p>
       </div>

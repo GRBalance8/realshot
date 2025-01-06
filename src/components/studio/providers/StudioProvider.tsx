@@ -1,5 +1,6 @@
 // src/components/studio/providers/StudioProvider.tsx
 'use client'
+
 import { createContext, useContext, ReactNode, useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
@@ -42,15 +43,17 @@ interface StudioContextType extends StudioState {
   loading: LoadingState
 }
 
+const createInitialInstructions = () => Array(6).fill(null).map(() => ({
+  description: '',
+  referenceImage: null,
+  fileId: null
+}))
+
 const INITIAL_STATE: StudioState = {
   currentStep: 0,
   designSubstep: 0,
   uploadedFiles: [],
-  photoInstructions: Array(6).fill({
-    description: '',
-    referenceImage: null,
-    fileId: null
-  }),
+  photoInstructions: createInitialInstructions(),
   profile: {
     hobbies: '',
     location: '',
@@ -110,16 +113,14 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         }))
 
         if (orderData.order) {
+          const photoInstructions = orderData.order.photoRequests?.length === 6 
+            ? orderData.order.photoRequests 
+            : createInitialInstructions()
+
           setState(prev => ({
             ...prev,
             uploadedFiles: orderData.order.uploadedPhotos || [],
-            photoInstructions: orderData.order.photoRequests.length ? 
-              orderData.order.photoRequests : 
-              Array(6).fill({
-                description: '',
-                referenceImage: null,
-                fileId: null
-              })
+            photoInstructions
           }))
         }
 
@@ -182,6 +183,11 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const updatePhotoInstructions = useCallback((instructions: StudioState['photoInstructions']) => {
+    // Ensure we always have exactly 6 instructions
+    if (instructions.length !== 6) {
+      console.warn('Attempting to update with incorrect number of instructions')
+      return
+    }
     setState(prev => ({ ...prev, photoInstructions: instructions }))
   }, [])
 

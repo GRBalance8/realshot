@@ -1,6 +1,7 @@
 // src/components/studio/sections/DesignSection/hooks/useDesignSection.ts
 'use client'
-import { useState } from 'react'
+
+import { useState, useCallback, useRef } from 'react'
 import { useStudio } from '../../../providers/StudioProvider'
 import { UserProfile, PhotoInstruction } from '../types'
 
@@ -17,18 +18,51 @@ export function useDesignSection() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [uploadingIndexes, setUploadingIndexes] = useState<Set<number>>(new Set())
+  const saveTimeoutRef = useRef<NodeJS.Timeout>()
 
   const handleProfileUpdate = (profile: Partial<UserProfile>) => {
     updateProfile(profile)
   }
 
+  const saveInstructionsToServer = useCallback(async (instructions: PhotoInstruction[]) => {
+    const response = await fetch('/api/studio/photo-instructions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(instructions)
+    })
+
+    if (!response.ok) {
+      const data = await response.json()
+      throw new Error(data.error || 'Failed to save instructions')
+    }
+
+    return response.json()
+  }, [])
+
   const handlePhotoInstructionUpdate = (index: number, data: Partial<PhotoInstruction>) => {
+    // First update local state
     const updatedInstructions = [...photoInstructions]
     updatedInstructions[index] = {
       ...updatedInstructions[index],
       ...data
     }
     updatePhotoInstructions(updatedInstructions)
+
+    // Clear any existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current)
+    }
+
+    // Set new timeout to save to server
+    saveTimeoutRef.current = setTimeout(async () => {
+      try {
+        await saveInstructionsToServer(updatedInstructions)
+        setError(null)
+      } catch (err) {
+        console.error('Error saving instruction:', err)
+        setError(err instanceof Error ? err.message : 'Failed to save instruction')
+      }
+    }, 1000) // Debounce for 1 second
   }
 
   const setUploadingState = (index: number, isUploading: boolean) => {
@@ -46,7 +80,6 @@ export function useDesignSection() {
   const saveProfile = async () => {
     setIsLoading(true)
     setError(null)
-
     try {
       const response = await fetch('/api/studio/profile', {
         method: 'POST',
@@ -71,22 +104,28 @@ export function useDesignSection() {
   const savePhotoInstructions = async () => {
     setIsLoading(true)
     setError(null)
-
+    
     try {
-      const response = await fetch('/api/studio/photo-instructions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(photoInstructions)
-      })
-      
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Failed to save instructions')
+      // Clear any pending debounced saves
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current)
       }
-      
+
+      // Validate that all descriptions are filled out
+      const hasEmptyDescriptions = photoInstructions.some(instruction => 
+        !instruction.description.trim()
+      )
+
+      if (hasEmptyDescriptions) {
+        throw new Error('Please provide descriptions for all photos')
+      }
+
+      // Save to server
+      await saveInstructionsToServer(photoInstructions)
       return true
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save instructions')
+      console.error('Error saving photo instructions:', err)
       return false
     } finally {
       setIsLoading(false)
