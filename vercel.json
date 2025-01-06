@@ -1,4 +1,5 @@
 {
+
   "buildCommand": "prisma generate && next build",
   "installCommand": "npm install",
   "crons": [
@@ -16,4 +17,12 @@
     "minimumCacheTTL": 60,
     "domains": ["vercel-blob.vercel.app"]
   }
+}
+{
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/node@18.18.0"
+    }
+  ]
 }
