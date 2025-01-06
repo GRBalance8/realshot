@@ -1,7 +1,7 @@
 // src/components/admin/UserManagement.tsx
 'use client';
+
 import { useState } from 'react';
-import { AdminUser } from '@/types/admin';
 import { UserRole } from '@prisma/client';
 
 interface UserDisplay {
@@ -14,7 +14,7 @@ interface UserDisplay {
   updatedAt: Date;
 }
 
-export function UserManagement({ initialUsers }: { initialUsers: UserDisplay[] }) {
+export function UserManagement({ initialUsers }: { initialUsers: UserDisplay[] }): JSX.Element {
   const [users] = useState<UserDisplay[]>(initialUsers);
 
   return (

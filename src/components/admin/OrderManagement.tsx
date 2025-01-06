@@ -1,5 +1,6 @@
 // src/components/admin/OrderManagement.tsx
 'use client';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { uploadToBlob, BlobFolder } from '@/lib/blob';
@@ -21,13 +22,13 @@ interface OrderManagementProps {
   initialOrders: Order[];
 }
 
-export function OrderManagement({ initialOrders }: OrderManagementProps) {
-  const [orders, setOrders] = useState(initialOrders);
+export function OrderManagement({ initialOrders }: OrderManagementProps): JSX.Element {
+  const [orders, setOrders] = useState<Order[]>(initialOrders);
   const [uploading, setUploading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const updateOrderStatus = async (orderId: string, updates: Partial<Order>) => {
+  const updateOrderStatus = async (orderId: string, updates: Partial<Order>): Promise<void> => {
     try {
       const response = await fetch(`/api/admin/orders/${orderId}`, {
         method: 'PATCH',
@@ -42,12 +43,12 @@ export function OrderManagement({ initialOrders }: OrderManagementProps) {
       setOrders(orders.map(order => 
         order.id === orderId ? { ...order, ...updates } : order
       ));
-    } catch (err) {
+    } catch {
       setError('Failed to update order status');
     }
   };
 
-  const handleFileUpload = async (orderId: string, files: FileList) => {
+  const handleFileUpload = async (orderId: string, files: FileList): Promise<void> => {
     setUploading(orderId);
     setError(null);
     
@@ -74,20 +75,20 @@ export function OrderManagement({ initialOrders }: OrderManagementProps) {
 
       await Promise.all(uploadPromises);
       router.refresh();
-    } catch (err) {
+    } catch {
       setError('Failed to upload images');
     } finally {
       setUploading(null);
     }
   };
 
-  const markOrderComplete = async (orderId: string) => {
+  const markOrderComplete = async (orderId: string): Promise<void> => {
     try {
       await updateOrderStatus(orderId, {
         orderCompleted: true,
         status: 'COMPLETED'
       });
-    } catch (err) {
+    } catch {
       setError('Failed to complete order');
     }
   };

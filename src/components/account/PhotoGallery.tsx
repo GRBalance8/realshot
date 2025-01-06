@@ -1,7 +1,7 @@
 // src/components/account/PhotoGallery.tsx
 'use client';
 
-import { FC, useState, useCallback, useEffect, KeyboardEvent } from 'react';
+import { FC, useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import type { Photo } from '@/types/orders';
@@ -10,24 +10,22 @@ interface PhotoGalleryProps {
   photos: Photo[];
 }
 
-export const PhotoGallery: FC<PhotoGalleryProps> = ({ photos }) => {
+export const PhotoGallery: FC<PhotoGalleryProps> = ({ photos }): JSX.Element => {
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
-  const [imageLoadErrors, setImageLoadErrors] = useState<Record<string, boolean>>({});
   const [downloading, setDownloading] = useState<Record<string, boolean>>({});
   const [loadingImages, setLoadingImages] = useState<Record<string, boolean>>(
     Object.fromEntries(photos.map(photo => [photo.id, true]))
   );
 
-  const handleImageError = useCallback((photoId: string) => {
-    setImageLoadErrors(prev => ({ ...prev, [photoId]: true }));
+  const handleImageError = useCallback((photoId: string): void => {
     setLoadingImages(prev => ({ ...prev, [photoId]: false }));
   }, []);
 
-  const handleImageLoad = useCallback((photoId: string) => {
+  const handleImageLoad = useCallback((photoId: string): void => {
     setLoadingImages(prev => ({ ...prev, [photoId]: false }));
   }, []);
 
-  const handleDownload = useCallback(async (photo: Photo) => {
+  const handleDownload = useCallback(async (photo: Photo): Promise<void> => {
     if (downloading[photo.id]) return;
 
     setDownloading(prev => ({ ...prev, [photo.id]: true }));
@@ -39,7 +37,6 @@ export const PhotoGallery: FC<PhotoGalleryProps> = ({ photos }) => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       
-      // Format date for filename
       const dateStr = photo.createdAt instanceof Date 
         ? photo.createdAt.toISOString().split('T')[0]
         : new Date(photo.createdAt).toISOString().split('T')[0];
@@ -58,9 +55,8 @@ export const PhotoGallery: FC<PhotoGalleryProps> = ({ photos }) => {
     }
   }, [downloading]);
 
-  // Handle keyboard events
   useEffect(() => {
-    const handleKeyDown = (e: globalThis.KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent): void => {
       if (selectedPhoto) {
         if (e.key === 'Escape') {
           setSelectedPhoto(null);

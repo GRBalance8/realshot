@@ -1,5 +1,6 @@
 // src/components/studio/sections/DesignSection/index.tsx
 'use client'
+
 import { useStudio } from '../../providers/StudioProvider'
 import { ErrorMessage } from '../../components/ErrorMessage'
 import { LoadingSpinner } from '../../components/LoadingSpinner'
@@ -8,7 +9,7 @@ import { ProfileForm } from './components/ProfileForm'
 import { PhotoInstructions } from './components/PhotoInstructions'
 import { useDesignSection } from './hooks/useDesignSection'
 
-export function DesignSection() {
+export function DesignSection(): JSX.Element {
   const { goToNextStep } = useStudio()
   const { 
     state, 
@@ -22,21 +23,21 @@ export function DesignSection() {
     setUploadingState
   } = useDesignSection()
 
-  const handleSaveProfile = async () => {
+  const handleSaveProfile = async (): Promise<void> => {
     try {
       await saveProfile()
-    } catch (err) {
+    } catch {
       // Error handled by hook
     }
   }
 
-  const handleContinue = async () => {
+  const handleContinue = async (): Promise<void> => {
     try {
       const success = await savePhotoInstructions()
       if (success) {
         goToNextStep()
       }
-    } catch (err) {
+    } catch {
       // Error handled by hook
     }
   }

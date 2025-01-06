@@ -2,14 +2,20 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { ApiResponse } from "@/types/api";
 
-export async function POST(request: Request) {
+interface ResetPasswordRequest {
+  token: string;
+  password: string;
+}
+
+export async function POST(request: Request): Promise<NextResponse<ApiResponse<{ success: boolean }>>> {
   try {
-    const { token, password } = await request.json();
+    const { token, password } = await request.json() as ResetPasswordRequest;
 
     if (!token || !password) {
       return NextResponse.json(
-        { message: "Missing required fields" },
+        { success: false, error: "Missing required fields" },
         { status: 400 }
       );
     }
@@ -25,13 +31,13 @@ export async function POST(request: Request) {
 
     if (!user) {
       return NextResponse.json(
-        { message: "Invalid or expired reset token" },
+        { success: false, error: "Invalid or expired reset token" },
         { status: 400 }
       );
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
-
+    
     await prisma.user.update({
       where: { id: user.id },
       data: {
@@ -42,9 +48,9 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
-      { message: "Failed to reset password" },
+      { success: false, error: "Failed to reset password" },
       { status: 500 }
     );
   }

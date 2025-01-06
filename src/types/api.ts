@@ -1,5 +1,5 @@
 // src/types/api.ts
-export type ApiResponse<T = any> = {
+export type ApiResponse<T> = {
   data?: T;
   error?: string;
   success: boolean;
@@ -21,7 +21,7 @@ export interface ApiError {
   status: number;
 }
 
-export type ApiRequest<T = any> = {
+export type ApiRequest<T> = {
   body?: T;
   query?: Record<string, string | string[]>;
   params?: Record<string, string>;

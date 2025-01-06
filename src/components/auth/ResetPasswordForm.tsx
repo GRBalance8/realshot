@@ -1,44 +1,46 @@
 // src/components/auth/ResetPasswordForm.tsx
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 
-export const ResetPasswordForm = () => {
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const token = searchParams.get('token');
+export const ResetPasswordForm = (): JSX.Element => {
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const token = searchParams.get('token')
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault()
     if (password !== confirmPassword) {
-      setError("Passwords don't match");
-      return;
+      setError("Passwords don't match")
+      return
     }
 
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
 
     try {
       const response = await fetch('/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, password }),
-      });
+      })
 
-      if (!response.ok) throw new Error('Failed to reset password');
+      if (!response.ok) {
+        throw new Error('Failed to reset password')
+      }
 
-      router.push('/auth?reset=success');
-    } catch (err) {
-      setError('Failed to reset password. Please try again.');
+      router.push('/auth?reset=success')
+    } catch {
+      setError('Failed to reset password. Please try again.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="w-full max-w-md bg-white rounded-[32px] shadow-lg p-10">
@@ -57,7 +59,6 @@ export const ResetPasswordForm = () => {
             minLength={8}
           />
         </div>
-
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Confirm Password
@@ -71,13 +72,11 @@ export const ResetPasswordForm = () => {
             minLength={8}
           />
         </div>
-
         {error && (
           <div className="bg-red-50 text-red-500 p-4 rounded-2xl text-sm">
             {error}
           </div>
         )}
-
         <button
           type="submit"
           disabled={loading}
@@ -87,5 +86,5 @@ export const ResetPasswordForm = () => {
         </button>
       </form>
     </div>
-  );
-};
+  )
+}

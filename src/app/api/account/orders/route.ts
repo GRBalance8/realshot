@@ -1,15 +1,16 @@
 // src/app/api/account/orders/route.ts
-import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { NextResponse } from 'next/server'
+import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 
-export async function GET(request: Request) {
+export async function GET(): Promise<NextResponse> {
   try {
-    const session = await auth();
+    const session = await auth()
+    
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const orders = await prisma.order.findMany({
@@ -27,14 +28,14 @@ export async function GET(request: Request) {
           }
         }
       }
-    });
+    })
 
-    return NextResponse.json({ orders });
+    return NextResponse.json({ orders })
   } catch (error) {
-    console.error('Order fetch error:', error);
+    console.error('Order fetch error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch orders' },
       { status: 500 }
-    );
+    )
   }
 }

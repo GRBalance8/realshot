@@ -7,6 +7,7 @@ import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
 import { UserRole } from "@prisma/client"
 import { Adapter } from "next-auth/adapters"
+import { Session } from "next-auth"
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as Adapter,
@@ -33,40 +34,44 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials");
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-          select: {
-            id: true,
-            email: true,
-            name: true,
-            password: true,
-            role: true,
-            isFirstTimeUser: true
+        try {
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email },
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              password: true,
+              role: true,
+              isFirstTimeUser: true
+            }
+          });
+
+          if (!user || !user.password) {
+            throw new Error("User not found");
           }
-        });
 
-        if (!user || !user.password) {
-          throw new Error("User not found");
+          const isValid = await bcrypt.compare(credentials.password, user.password);
+          if (!isValid) {
+            throw new Error("Invalid password");
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            isFirstTimeUser: user.isFirstTimeUser
+          };
+        } catch (error) {
+          console.error("Auth error:", error);
+          throw new Error("Authentication failed");
         }
-
-        const isValid = await bcrypt.compare(credentials.password, user.password);
-        if (!isValid) {
-          throw new Error("Invalid password");
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          isFirstTimeUser: user.isFirstTimeUser
-        };
       }
     })
   ],
   callbacks: {
-    async jwt({ token, user, account, trigger }) {
-      // Initial sign in
+    async jwt({ token, user, account }) {
       if (account && user) {
         return {
           ...token,
@@ -76,12 +81,13 @@ export const authOptions: NextAuthOptions = {
         };
       }
 
-      // Subsequent calls - always fetch latest role from database
       if (token.id) {
         try {
-          const dbUser = await prisma.user.findUnique({
-            where: { id: token.id as string },
-            select: { role: true, isFirstTimeUser: true }
+          const dbUser = await prisma.$transaction(async (tx) => {
+            return await tx.user.findUnique({
+              where: { id: token.id as string },
+              select: { role: true, isFirstTimeUser: true }
+            });
           });
 
           if (dbUser) {
@@ -90,10 +96,10 @@ export const authOptions: NextAuthOptions = {
           }
         } catch (error) {
           console.error("Error fetching user in JWT callback:", error);
+          // Return existing token instead of failing
           return token;
         }
       }
-
       return token;
     },
     async session({ session, token }) {
@@ -108,7 +114,6 @@ export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === "development",
 };
 
-// Type declarations
 declare module "next-auth" {
   interface Session {
     user: {
@@ -120,7 +125,6 @@ declare module "next-auth" {
       image?: string | null;
     }
   }
-
   interface User {
     role: UserRole;
     isFirstTimeUser: boolean;
@@ -135,11 +139,15 @@ declare module "next-auth/jwt" {
   }
 }
 
-// Helper function to check if user is an admin
-export const isAdmin = (session: any) => {
+export const isAdmin = (session: Session | null): boolean => {
   return session?.user?.role === UserRole.ADMIN;
 };
 
-export async function auth() {
-  return await getServerSession(authOptions);
+export async function auth(): Promise<Session | null> {
+  try {
+    return await getServerSession(authOptions);
+  } catch (error) {
+    console.error("Session error:", error);
+    return null;
+  }
 }

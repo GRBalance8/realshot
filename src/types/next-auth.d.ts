@@ -1,5 +1,4 @@
 // src/types/next-auth.d.ts
-import NextAuth from "next-auth"
 import { UserRole } from "@prisma/client"
 
 declare module "next-auth" {
@@ -13,7 +12,7 @@ declare module "next-auth" {
       isFirstTimeUser: boolean
     }
   }
-
+  
   interface User {
     role: UserRole
     isFirstTimeUser: boolean

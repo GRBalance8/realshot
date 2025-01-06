@@ -1,49 +1,54 @@
 // src/app/admin/orders/page.tsx
-import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
 import { OrderManagement } from '@/components/admin/OrderManagement';
+import { prisma } from '@/lib/prisma';
+import { Decimal } from '@prisma/client/runtime/library';
 
-export default async function AdminOrdersPage() {
-  const session = await auth();
-  if (!session?.user) {
-    redirect('/auth');
-  }
+interface Order {
+  id: string;
+  userId: string;
+  status: string;
+  imagesProcessed: boolean;
+  trainingInitiated: boolean;
+  imagesGenerated: boolean;
+  orderCompleted: boolean;
+  responsiblePerson: string | null;
+  totalAmount: number;
+  paymentStatus: string;
+  stripeSessionId: string | null;
+  paymentIntentId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  user: {
+    email: string;
+  };
+}
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id }
-  });
-
-  if (user?.role !== 'ADMIN') {
-    redirect('/account');
-  }
-
-  const orders = await prisma.order.findMany({
-    where: { paymentStatus: 'PAID' },
-    orderBy: { createdAt: 'desc' },
+export default async function OrdersPage(): Promise<JSX.Element> {
+  const rawOrders = await prisma.order.findMany({
     include: {
       user: {
-        select: { email: true, name: true }
+        select: {
+          email: true,
+        },
       },
-      uploadedPhotos: true,
-      generatedPhotos: true
-    }
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
   });
 
-  const serializedOrders = orders.map(order => ({
+  // Convert Decimal to number for client component
+  const orders: Order[] = rawOrders.map(order => ({
     ...order,
-    totalAmount: Number(order.totalAmount),
-    createdAt: order.createdAt.toISOString(),
-    updatedAt: order.updatedAt.toISOString()
+    totalAmount: order.totalAmount instanceof Decimal ? 
+      order.totalAmount.toNumber() : 
+      Number(order.totalAmount),
   }));
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="mb-8">
-        <h1 className="text-2xl font-serif text-blue-900">Orders</h1>
-        <p className="text-gray-600">Manage and track all orders</p>
-      </div>
-      <OrderManagement initialOrders={serializedOrders} />
-    </main>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h1 className="text-2xl font-serif mb-8">Order Management</h1>
+      <OrderManagement initialOrders={orders} />
+    </div>
   );
 }

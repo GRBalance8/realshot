@@ -1,34 +1,39 @@
 // src/components/auth/ForgotPasswordForm.tsx
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
-export const ForgotPasswordForm = () => {
-  const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const router = useRouter();
+export const ForgotPasswordForm = (): JSX.Element => {
+  const [email, setEmail] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
+  const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+    
     try {
       const response = await fetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
-      });
-      if (!response.ok) throw new Error('Failed to process request');
-      setSuccess(true);
-    } catch (err) {
-      setError('Failed to send reset email. Please try again.');
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to process request')
+      }
+      
+      setSuccess(true)
+    } catch {
+      setError('Failed to send reset email. Please try again.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   if (success) {
     return (
@@ -44,7 +49,7 @@ export const ForgotPasswordForm = () => {
           Return to Login
         </button>
       </div>
-    );
+    )
   }
 
   return (
@@ -87,5 +92,5 @@ export const ForgotPasswordForm = () => {
         </button>
       </form>
     </div>
-  );
-};
+  )
+}

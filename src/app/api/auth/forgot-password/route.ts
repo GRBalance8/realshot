@@ -2,18 +2,18 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
-import { sendResetEmail } from "@/lib/email"; // You'll need to implement this
+import { sendResetEmail } from "@/lib/email";
+import { ApiResponse } from "@/types/api";
 
-export async function POST(request: Request) {
+export async function POST(request: Request): Promise<NextResponse<ApiResponse<{ success: boolean }>>> {
   try {
     const { email } = await request.json();
-
+    
     const user = await prisma.user.findUnique({
       where: { email }
     });
 
     if (!user) {
-      // Return success even if user not found (security)
       return NextResponse.json({ success: true });
     }
 
@@ -29,11 +29,11 @@ export async function POST(request: Request) {
     });
 
     await sendResetEmail(email, resetToken);
-
+    
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
-      { message: "Failed to process request" },
+      { success: false, error: "Failed to process request" },
       { status: 500 }
     );
   }

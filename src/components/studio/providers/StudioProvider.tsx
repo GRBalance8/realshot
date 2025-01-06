@@ -2,7 +2,6 @@
 'use client'
 
 import { createContext, useContext, ReactNode, useState, useCallback, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 
 interface StudioState {
   currentStep: number
@@ -66,8 +65,7 @@ const StudioContext = createContext<StudioContextType | undefined>(undefined)
 
 const STORAGE_KEY = 'studio_state'
 
-export function StudioProvider({ children }: { children: ReactNode }) {
-  const router = useRouter()
+export function StudioProvider({ children }: { children: ReactNode }): JSX.Element {
   const [state, setState] = useState<StudioState>(INITIAL_STATE)
   const [loading, setLoading] = useState<LoadingState>({
     isLoading: true,
@@ -75,7 +73,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   })
 
   useEffect(() => {
-    async function loadAllData() {
+    async function loadAllData(): Promise<void> {
       try {
         setLoading({ isLoading: true, message: 'Retrieving your data...' })
 
@@ -140,15 +138,15 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     }
   }, [state, loading.isLoading])
 
-  const setStep = useCallback((step: number) => {
+  const setStep = useCallback((step: number): void => {
     setState(prev => ({ ...prev, currentStep: step, designSubstep: 0 }))
   }, [])
 
-  const setDesignSubstep = useCallback((substep: number) => {
+  const setDesignSubstep = useCallback((substep: number): void => {
     setState(prev => ({ ...prev, designSubstep: substep }))
   }, [])
 
-  const goToNextStep = useCallback(() => {
+  const goToNextStep = useCallback((): void => {
     setState(prev => ({
       ...prev,
       currentStep: Math.min(prev.currentStep + 1, 3),
@@ -156,7 +154,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     }))
   }, [])
 
-  const goToPreviousStep = useCallback(() => {
+  const goToPreviousStep = useCallback((): void => {
     setState(prev => ({
       ...prev,
       currentStep: Math.max(prev.currentStep - 1, 0),
@@ -164,26 +162,25 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     }))
   }, [])
 
-  const goToNextDesignStep = useCallback(() => {
+  const goToNextDesignStep = useCallback((): void => {
     setState(prev => ({
       ...prev,
       designSubstep: Math.min(prev.designSubstep + 1, 1)
     }))
   }, [])
 
-  const goToPreviousDesignStep = useCallback(() => {
+  const goToPreviousDesignStep = useCallback((): void => {
     setState(prev => ({
       ...prev,
       designSubstep: Math.max(prev.designSubstep - 1, 0)
     }))
   }, [])
 
-  const updateUploadedFiles = useCallback((files: StudioState['uploadedFiles']) => {
+  const updateUploadedFiles = useCallback((files: StudioState['uploadedFiles']): void => {
     setState(prev => ({ ...prev, uploadedFiles: files }))
   }, [])
 
-  const updatePhotoInstructions = useCallback((instructions: StudioState['photoInstructions']) => {
-    // Ensure we always have exactly 6 instructions
+  const updatePhotoInstructions = useCallback((instructions: StudioState['photoInstructions']): void => {
     if (instructions.length !== 6) {
       console.warn('Attempting to update with incorrect number of instructions')
       return
@@ -191,7 +188,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     setState(prev => ({ ...prev, photoInstructions: instructions }))
   }, [])
 
-  const updateProfile = useCallback((profile: Partial<StudioState['profile']>) => {
+  const updateProfile = useCallback((profile: Partial<StudioState['profile']>): void => {
     setState(prev => ({
       ...prev,
       profile: { ...prev.profile, ...profile }
@@ -228,7 +225,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   )
 }
 
-export const useStudio = () => {
+export const useStudio = (): StudioContextType => {
   const context = useContext(StudioContext)
   if (context === undefined) {
     throw new Error('useStudio must be used within a StudioProvider')

@@ -1,12 +1,12 @@
 // src/app/admin/layout.tsx
+import { ReactNode } from 'react';
 import Link from 'next/link';
-import { FC, ReactNode } from 'react';
 
 interface AdminLayoutProps {
   children: ReactNode;
 }
 
-export default function AdminLayout({ children }: AdminLayoutProps) {
+export default function AdminLayout({ children }: AdminLayoutProps): JSX.Element {
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-blue-900 text-white">
@@ -32,7 +32,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </div>
         </div>
       </nav>
-      {children}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {children}
+      </main>
     </div>
   );
 }
