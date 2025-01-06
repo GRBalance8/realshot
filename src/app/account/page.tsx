@@ -1,20 +1,22 @@
 // src/app/account/page.tsx
-import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { AccountContent } from '@/components/account/AccountContent';
-import type { Metadata } from 'next';
-import type { OrderWithDetails } from '@/types/orders';
+import { redirect } from 'next/navigation'
+import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+import { AccountContent } from '@/components/account/AccountContent'
+import type { Metadata } from 'next'
+import type { OrderWithDetails } from '@/types/orders'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Account | RealShot',
   description: 'View your RealShot account and photos',
-};
+}
 
-export default async function AccountPage() {
-  const session = await auth();
+export default async function AccountPage(): Promise<JSX.Element> {
+  const session = await auth()
   if (!session?.user) {
-    redirect('/auth');
+    redirect('/auth')
   }
 
   const latestOrder = await prisma.order.findFirst({
@@ -34,11 +36,11 @@ export default async function AccountPage() {
       uploadedPhotos: true,
       photoRequests: true
     }
-  }) as OrderWithDetails | null;
+  }) as OrderWithDetails | null
 
   if (!latestOrder || latestOrder.paymentStatus !== 'PAID') {
-    redirect('/studio');
+    redirect('/studio')
   }
 
-  return <AccountContent userName={session.user.name} order={latestOrder} />;
+  return <AccountContent userName={session.user.name} order={latestOrder} />
 }

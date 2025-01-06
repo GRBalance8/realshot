@@ -1,16 +1,20 @@
 // src/app/studio/success/page.tsx
-import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
-import { Card } from '@/components/studio/components/Card';
+import { redirect } from 'next/navigation'
+import { auth } from '@/lib/auth'
+import { Card } from '@/components/studio/components/Card'
 
-export default async function SuccessPage({
-  searchParams
-}: {
-  searchParams: { session_id: string }
-}) {
-  const session = await auth();
+export const dynamic = 'force-dynamic'
+
+interface SuccessPageProps {
+  searchParams: { 
+    session_id: string 
+  }
+}
+
+export default async function SuccessPage({ searchParams }: SuccessPageProps): Promise<JSX.Element> {
+  const session = await auth()
   if (!session) {
-    redirect('/auth');
+    redirect('/auth')
   }
 
   return (
@@ -32,5 +36,5 @@ export default async function SuccessPage({
         </div>
       </Card>
     </div>
-  );
+  )
 }

@@ -1,34 +1,36 @@
 // src/app/admin/users/page.tsx
-import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { UserManagement } from '@/components/admin/UserManagement';
+import { redirect } from 'next/navigation'
+import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+import { UserManagement } from '@/components/admin/UserManagement'
 
-export default async function AdminUsersPage() {
-  const session = await auth();
+export const dynamic = 'force-dynamic'
+
+export default async function AdminUsersPage(): Promise<JSX.Element> {
+  const session = await auth()
   if (!session?.user) {
-    redirect('/auth');
+    redirect('/auth')
   }
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id }
-  });
+  })
 
   if (user?.role !== 'ADMIN') {
-    redirect('/account');
+    redirect('/account')
   }
 
   const users = await prisma.user.findMany({
-  orderBy: { createdAt: 'desc' },
-  select: {
-    id: true,
-    email: true,
-    name: true,
-    role: true,
-    createdAt: true,
-    updatedAt: true
-  }
-});
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      createdAt: true,
+      updatedAt: true
+    }
+  })
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -38,5 +40,5 @@ export default async function AdminUsersPage() {
       </div>
       <UserManagement initialUsers={users} />
     </main>
-  );
+  )
 }

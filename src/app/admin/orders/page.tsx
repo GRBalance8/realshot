@@ -1,8 +1,16 @@
-// src/app/admin/orders/page.tsx
 import { OrderManagement } from '@/components/admin/OrderManagement';
 import { prisma } from '@/lib/prisma';
 import { Decimal } from '@prisma/client/runtime/library';
+import { Order as PrismaOrder } from '@prisma/client';
 
+// Interface for the raw order from Prisma
+interface RawOrder extends PrismaOrder {
+  user: {
+    email: string;
+  };
+}
+
+// Interface for the processed order
 interface Order {
   id: string;
   userId: string;
@@ -38,7 +46,7 @@ export default async function OrdersPage(): Promise<JSX.Element> {
   });
 
   // Convert Decimal to number for client component
-  const orders: Order[] = rawOrders.map(order => ({
+  const orders: Order[] = rawOrders.map((order: RawOrder): Order => ({
     ...order,
     totalAmount: order.totalAmount instanceof Decimal ? 
       order.totalAmount.toNumber() : 

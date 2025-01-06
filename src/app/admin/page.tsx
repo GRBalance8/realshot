@@ -1,26 +1,27 @@
 // src/app/admin/page.tsx
-import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { OrderManagement } from '@/components/admin/OrderManagement';
-import { StatsCards } from '@/components/admin/StatsCards';
-import { UserManagement } from '@/components/admin/UserManagement';
+import { redirect } from 'next/navigation'
+import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+import { OrderManagement } from '@/components/admin/OrderManagement'
+import { StatsCards } from '@/components/admin/StatsCards'
+import { UserManagement } from '@/components/admin/UserManagement'
 
-export default async function AdminPage() {
-  const session = await auth();
+export const dynamic = 'force-dynamic'
+
+export default async function AdminPage(): Promise<JSX.Element> {
+  const session = await auth()
   if (!session?.user) {
-    redirect('/auth');
+    redirect('/auth')
   }
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id }
-  });
+  })
 
   if (user?.role !== 'ADMIN') {
-    redirect('/account');
+    redirect('/account')
   }
 
-  // Get all data needed for admin dashboard
   const [orders, users, stats] = await Promise.all([
     prisma.order.findMany({
       where: { paymentStatus: 'PAID' },
@@ -54,16 +55,16 @@ export default async function AdminPage() {
         _sum: { totalAmount: true }
       })
     ])
-  ]);
+  ])
 
-  const [totalOrders, pendingOrders, processingOrders, completedOrders, revenue] = stats;
+  const [totalOrders, pendingOrders, processingOrders, completedOrders, revenue] = stats
 
   const serializedOrders = orders.map(order => ({
     ...order,
     totalAmount: Number(order.totalAmount),
     createdAt: order.createdAt.toISOString(),
     updatedAt: order.updatedAt.toISOString()
-  }));
+  }))
 
   const dashboardStats = {
     totalOrders,
@@ -72,7 +73,7 @@ export default async function AdminPage() {
     completedOrders,
     totalRevenue: Number(revenue._sum.totalAmount) || 0,
     averageOrderValue: totalOrders ? (Number(revenue._sum.totalAmount) || 0) / totalOrders : 0
-  };
+  }
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -80,18 +81,15 @@ export default async function AdminPage() {
         <h2 className="text-2xl font-serif text-blue-900">Overview</h2>
         <p className="text-gray-600">Dashboard statistics and quick actions</p>
       </div>
-
       <StatsCards stats={dashboardStats} />
-
       <div className="mt-12">
         <h2 className="text-2xl font-serif text-blue-900 mb-6">Recent Orders</h2>
         <OrderManagement initialOrders={serializedOrders.slice(0, 5)} />
       </div>
-
       <div className="mt-12">
         <h2 className="text-2xl font-serif text-blue-900 mb-6">Recent Users</h2>
         <UserManagement initialUsers={users.slice(0, 5)} />
       </div>
     </main>
-  );
+  )
 }
